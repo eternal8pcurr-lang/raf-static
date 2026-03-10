@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Real Asset Foundation &mdash; 7 Pillars</title>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #080808; }
+  #root { width: 100%; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+const IMG_B64 = "/wp-content/uploads/RAFPillars.png";
+
+const pillars = [
+  {
+    id: 1, number: "01", title: "Mine Certification", category: "THE ASSET", color: "#c8b06a",
+    hotspot: { x: 12, y: 28 },
+    points: [
+      "Real Asset Foundation (RAF) is the first point of contact for mine certification.",
+      "RAF coordinates independent geological surveys to establish verifiable reserves.",
+      "Gold certification meets NI 43-101 international standards.",
+      "All mines also follow RAF's own 43-99 certification process for in-situ recognition.",
+    ],
+    summary: "RAF certifies the mine, validating gold reserves at international standards before anything enters the system.",
+  },
+  {
+    id: 2, number: "02", title: "Tripartite Estate & Mineral Trust", category: "THE ASSET", color: "#c8b06a",
+    hotspot: { x: 12, y: 53 },
+    points: [
+      "The Tripartite Declaration separates the estate into three parts: mineral, biological, and social.",
+      "The mineral estate conveys Earth Blocks to the bioregional mineral trust.",
+      "Each Earth Block is quantified and tied to certified gold reserves.",
+    ],
+    summary: "Legal separation creates a dedicated mineral trust, isolating subsurface assets from surface land rights.",
+  },
+  {
+    id: 3, number: "03", title: "Earth Blocks", category: "THE ASSET", color: "#7ec8e3",
+    hotspot: { x: 12, y: 80 },
+    points: [
+      "Earth Blocks are 5m x 5m x 5m units of subsurface mineral real property.",
+      "Each block compiles geolocation, title, chain of custody, and mineral data into one auditable packet.",
+      "Each Earth Block is sent to the Registry and prepared for both DST issuance and RealGold tokenization.",
+    ],
+    summary: "Physical gold reserves are carved into standardized 5m cube units &mdash; the atomic unit of the entire RealGold ecosystem.",
+  },
+  {
+    id: 4, number: "04", title: "The Registry (RAF)", category: "THE FOUNDATION", color: "#e6b033",
+    hotspot: { x: 53, y: 68 },
+    points: [
+      "The Real Assets Registry is a Holochain-based ledger using UNYT accounting for transparent, tamper-evident records.",
+      "The Registry tracks Earth Blocks, DST allocations, ownership history, and compliance verification.",
+      "Under RAF direction, the Registry conveys allocations to both the DST and tokenization paths and records all transactions.",
+      "RAF oversees all seven of the processes to quantify and issue real property with mineral assets.",
+    ],
+    summary: "The RAF-overseen Registry is the immutable source of truth &mdash; connecting the physical asset to both investment paths.",
+  },
+  {
+    id: 5, number: "05", title: "DST Path", category: "THE MARKETS", color: "#a8c8e8",
+    hotspot: { x: 72, y: 35 },
+    points: [
+      "RAF structures the DST for section 1031 exchange qualification &mdash; backed by certified mineral real property.",
+      "The DST path allows traditional real estate investors to participate through a familiar, IRS-compliant vehicle.",
+      "Investors can bridge between paths, converting DST interests to tokens or tokens to DST positions.",
+    ],
+    summary: "The DST path offers section 1031-qualified exposure to certified mineral real property for traditional real estate investors.",
+  },
+  {
+    id: "5b", number: "05", title: "RealGold Token Path", category: "THE MARKETS", color: "#e6b033",
+    hotspot: { x: 72, y: 72 },
+    points: [
+      "The RealGold Token provides digital market access &mdash; backed by the same certified mineral real property as the DST.",
+      "Both instruments are backed by identical Earth Blocks in the Registry, ensuring parity of underlying value.",
+      "Investors can bridge between paths, converting DST interests to tokens or tokens to DST positions.",
+    ],
+    summary: "The RealGold Token brings in-situ mineral real property on-chain, bridging physical gold and digital markets.",
+  },
+  {
+    id: 6, number: "06", title: "Market Coordination & Regulation", category: "THE MARKETS", color: "#7eb89a",
+    hotspot: { x: 88, y: 65 },
+    points: [
+      "RAF coordinates DST and token markets through the Registry, ensuring IRS, SEC, and digital asset compliance.",
+      "Owners access provenance records, Earth Block models, and full transaction history through the Registry.",
+      "Dual-market oversight ensures both traditional and digital investors operate under consistent compliance frameworks.",
+    ],
+    summary: "RAF enforces compliance across both markets &mdash; IRS, SEC, and digital asset regulations &mdash; keeping the entire system audit-ready.",
+  },
+  {
+    id: 7, number: "07", title: "Fiduciary & Stewardship", category: "THE MARKETS", color: "#8ab87a",
+    hotspot: { x: 88, y: 33 },
+    points: [
+      "RAF holds fiduciary responsibility across the entire system &mdash; Registry, DSTs, tokenization, and stewardship.",
+      "Minerals stay permanently in situ, stabilizing both DST and token markets while funding environmental reclamation and social programs.",
+      "This permanent in-situ commitment is RAF's foundational promise: Earth Based Currencies that respect the land.",
+    ],
+    summary: "Gold stays in the ground permanently &mdash; RAF's ultimate commitment to environmental integrity and long-term value.",
+  },
+];
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" ? window.innerWidth < 640 : false
+  );
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
+  return isMobile;
+}
+
+function RAFInteractive() {
+  const [active, setActive] = useState(null);
+  const [revealed, setRevealed] = useState(false);
+  const [pulse, setPulse] = useState(true);
+  const isMobile = useIsMobile();
+  const detailRef = useRef(null);
+
+  useEffect(() => {
+    setTimeout(() => setRevealed(true), 150);
+    const t = setTimeout(() => setPulse(false), 4000);
+    return () => clearTimeout(t);
+  }, []);
+
+  const activePillar = active !== null ? pillars.find(p => p.id === active) : null;
+  const currentIndex = activePillar ? pillars.findIndex(p => p.id === active) : -1;
+
+  const handleSelect = (id) => {
+    setActive(prev => prev === id ? null : id);
+    if (isMobile && id !== active) {
+      setTimeout(() => {
+        detailRef.current && detailRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 80);
+    }
+  };
+
+  return (
+    <div style={{
+      minHeight: "unset",
+      background: "#080808",
+      color: "#fff",
+      fontFamily: "Georgia, serif",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+    }}>
+      <style>{`
+        @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes ripple { 0%{transform:scale(1);opacity:0.8} 100%{transform:scale(2.2);opacity:0} }
+        @keyframes hotPulse { 0%,100%{box-shadow:0 0 0 0 rgba(230,176,51,0.6)} 50%{box-shadow:0 0 0 10px rgba(230,176,51,0)} }
+        @keyframes panelIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes floatDot { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+        @keyframes pointIn { from{opacity:0;transform:translateX(10px)} to{opacity:1;transform:translateX(0)} }
+        .hotspot-btn {
+          position: absolute;
+          transform: translate(-50%, -50%);
+          cursor: pointer;
+          border: none;
+          background: none;
+          padding: 0;
+          z-index: 10;
+          -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
+        }
+        .hotspot-ring {
+          border-radius: 50%;
+          border: 2px solid rgba(230,176,51,0.9);
+          background: rgba(10,10,10,0.75);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s;
+          position: relative;
+          backdrop-filter: blur(3px);
+        }
+        .hotspot-btn:hover .hotspot-ring,
+        .hotspot-btn.active-hs .hotspot-ring {
+          background: rgba(230,176,51,0.3);
+          border-color: #e6b033;
+          transform: scale(1.15);
+        }
+        .hotspot-btn.pulsing .hotspot-ring {
+          animation: hotPulse 1.8s ease-in-out infinite;
+        }
+        .hotspot-ripple {
+          position: absolute;
+          inset: -5px;
+          border-radius: 50%;
+          border: 1px solid rgba(230,176,51,0.5);
+          animation: ripple 2s ease-out infinite;
+          pointer-events: none;
+        }
+        .point-row {
+          opacity: 0;
+          animation: pointIn 0.35s ease forwards;
+        }
+        .detail-panel {
+          animation: panelIn 0.35s ease forwards;
+        }
+        .nav-btn {
+          background: none;
+          border: 1px solid rgba(255,255,255,0.14);
+          color: rgba(255,255,255,0.5);
+          border-radius: 3px;
+          cursor: pointer;
+          font-family: monospace;
+          transition: all 0.18s;
+        }
+        .nav-btn:not(:disabled):hover {
+          border-color: rgba(230,176,51,0.5);
+          color: #e6b033;
+        }
+        .nav-btn:disabled { opacity: 0.25; cursor: default; }
+      `}
+
+      {/* HEADER */}
+      <div style={{
+        width: "100%", maxWidth: 1100,
+        padding: isMobile ? "28px 16px 16px" : "40px 24px 24px",
+        opacity: revealed ? 1 : 0,
+        transition: "opacity 0.8s ease",
+        textAlign: "center",
+      }}>
+        <div style={{
+          display: "inline-flex", alignItems: "center", gap: 8,
+          background: "rgba(230,176,51,0.08)",
+          border: "1px solid rgba(230,176,51,0.2)",
+          borderRadius: 2, padding: "5px 14px", marginBottom: 16,
+          fontSize: 9, letterSpacing: "0.2em", color: "#e6b033", fontFamily: "monospace",
+        }}>
+          <span style={{ width:5, height:5, borderRadius:"50%", background:"#e6b033", display:"inline-block", animation:"floatDot 2s ease infinite" }}/>
+          REAL ASSET FOUNDATION
+        
+        <h1 style={{ fontSize: isMobile ? "1.6rem" : "clamp(1.8rem,4vw,3rem)", fontWeight:300, margin:"0 0 8px", letterSpacing:"-0.01em" }}>
+          The <span style={{ color:"#e6b033", fontStyle:"italic" }}>7 Pillars
+        
+        <p style={{ fontSize: isMobile ? "0.72rem" : "0.85rem", color:"rgba(255,255,255,0.38)", fontFamily:"monospace", letterSpacing:"0.08em", margin:0 }}>
+          {isMobile ? "Tap any node to explore" : "Click any element in the diagram to explore its role in the system"}
+        
+      
+
+      {/* MAIN */}
+      <div style={{
+        width:"100%", maxWidth:1100,
+        padding: isMobile ? "0 0 40px" : "0 24px 60px",
+        display:"flex", flexDirection:"column", gap:0,
+      }}>
+
+        {/* IMAGE MAP */}
+        <div style={{
+          position:"relative", width:"100%",
+          borderRadius: activePillar ? (isMobile ? "0" : "6px 6px 0 0") : (isMobile ? "0" : "6px"),
+          overflow:"hidden",
+          border:"1px solid rgba(230,176,51,0.15)",
+          borderBottom: activePillar ? "none" : "1px solid rgba(230,176,51,0.15)",
+          opacity: revealed ? 1 : 0,
+          transition: "opacity 0.8s ease 0.2s",
+        }}>
+          <img
+            src={IMG_B64}
+            alt="Real Asset Foundation 7 Pillars Diagram"
+            style={{ width:"100%", display:"block", userSelect:"none", pointerEvents:"none" }}
+          />
+
+          {pillars.map((p, i) => {
+            const ringSize = isMobile ? 36 : 32;
+            const fontSize = isMobile ? 10 : 9;
+            return (
+              <button
+                key={p.id}
+                className={"hotspot-btn" + (pulse && i < 3 ? " pulsing" : "") + (active === p.id ? " active-hs" : "")}
+                style={{ left: p.hotspot.x + "%", top: p.hotspot.y + "%" }}
+                onClick={() => handleSelect(p.id)}
+                title={p.title}
+              >
+                {pulse && <div className="hotspot-ripple" />}
+                <div className="hotspot-ring" style={{
+                  width: ringSize, height: ringSize,
+                  borderColor: active === p.id ? p.color : "rgba(230,176,51,0.8)",
+                }}>
+                  <span style={{
+                    fontSize, fontFamily:"monospace",
+                    color: active === p.id ? p.color : "#e6b033",
+                    fontWeight:700, letterSpacing:"-0.02em",
+                  }}>{typeof p.id === "string" ? "05" : p.number}
+                
+              
+            );
+          })}
+
+          {activePillar && (
+            <div style={{ position:"absolute", inset:0, background:"rgba(0,0,0,0.15)", pointerEvents:"none" }}/>
+          )}
+        
+
+        {/* DETAIL PANEL */}
+        <div ref={detailRef}>
+          {activePillar && (
+            <div className="detail-panel" style={{
+              background:"rgba(12,11,9,0.98)",
+              border:"1px solid rgba(230,176,51,0.2)",
+              borderTop:"2px solid " + activePillar.color,
+              borderRadius: isMobile ? "0" : "0 0 6px 6px",
+              padding: isMobile ? "20px 16px" : "28px 32px",
+              display:"grid",
+              gridTemplateColumns: isMobile ? "1fr" : "240px 1fr",
+              gap: isMobile ? 0 : 32,
+            }}>
+              {/* Identity */}
+              <div style={{
+                borderRight: isMobile ? "none" : "1px solid rgba(255,255,255,0.06)",
+                borderBottom: isMobile ? "1px solid rgba(255,255,255,0.06)" : "none",
+                paddingRight: isMobile ? 0 : 28,
+                paddingBottom: isMobile ? 20 : 0,
+                marginBottom: isMobile ? 20 : 0,
+              }}>
+                <div style={{
+                  display:"inline-block",
+                  background: activePillar.color + "18",
+                  border:"1px solid " + activePillar.color + "44",
+                  borderRadius:2, padding:"3px 10px",
+                  fontSize:9, letterSpacing:"0.18em",
+                  color:activePillar.color, fontFamily:"monospace", marginBottom:10,
+                }}>{activePillar.category}
+
+                <div style={{ display:"flex", alignItems:"flex-start", gap:12 }}>
+                  <div style={{ fontSize: isMobile ? 36 : 48, fontFamily:"monospace", fontWeight:700, color:activePillar.color, opacity:0.12, lineHeight:1, flexShrink:0 }}>
+                    {activePillar.number}
+                  
+                  <div>
+                    <h2 style={{ fontSize: isMobile ? "1.05rem" : "1.15rem", fontWeight:400, color:"#fff", margin:"0 0 8px", lineHeight:1.25 }}>
+                      {activePillar.title}
+                    
+                    <div style={{ width:24, height:2, background:activePillar.color, borderRadius:1, marginBottom:10 }}/>
+                    <p style={{ fontSize:"0.82rem", color:"rgba(255,255,255,0.5)", lineHeight:1.65, fontStyle:"italic", margin:0 }}>
+                      {activePillar.summary}
+                    
+                  
+                
+
+                <div style={{ display:"flex", gap:8, marginTop:16 }}>
+                  <button className="nav-btn" disabled={currentIndex === 0}
+                    onClick={() => handleSelect(pillars[currentIndex - 1].id)}
+                    style={{ padding: isMobile ? "8px 16px" : "5px 12px", fontSize: isMobile ? 12 : 11 }}>
+                    &#8592; PREV
+                  
+                  <button className="nav-btn" disabled={currentIndex === pillars.length - 1}
+                    onClick={() => handleSelect(pillars[currentIndex + 1].id)}
+                    style={{ padding: isMobile ? "8px 16px" : "5px 12px", fontSize: isMobile ? 12 : 11 }}>
+                    NEXT &#8594;
+                  
+                  <button className="nav-btn" onClick={() => setActive(null)}
+                    style={{ padding: isMobile ? "8px 16px" : "5px 12px", fontSize: isMobile ? 12 : 11, marginLeft:"auto" }}>
+                    &#10005;
+                  
+                
+              
+
+              {/* Key mechanics */}
+              <div>
+                <div style={{ fontSize:9, fontFamily:"monospace", letterSpacing:"0.2em", color:"rgba(255,255,255,0.25)", marginBottom:16 }}>
+                  KEY MECHANICS
+                
+                <div style={{ display:"flex", flexDirection:"column", gap: isMobile ? 16 : 14 }}>
+                  {activePillar.points.map((pt, i) => (
+                    <div key={i} className="point-row" style={{ animationDelay: (i * 0.07) + "s", display:"flex", gap:12, alignItems:"flex-start" }}>
+                      <div style={{
+                        flexShrink:0,
+                        width: isMobile ? 26 : 22, height: isMobile ? 26 : 22,
+                        borderRadius:"50%",
+                        background: activePillar.color + "18",
+                        border:"1px solid " + activePillar.color + "55",
+                        display:"flex", alignItems:"center", justifyContent:"center",
+                        fontSize: isMobile ? 10 : 9, color:activePillar.color, fontFamily:"monospace",
+                        marginTop:2,
+                      }}>{i+1}
+                      <p style={{ fontSize: isMobile ? "0.88rem" : "0.93rem", color:"rgba(255,255,255,0.8)", lineHeight:1.75, margin:0 }}>{pt}
+                    
+                  ))}
+                
+
+                {currentIndex < pillars.length - 1 && (
+                  <div style={{
+                    marginTop:20, padding:"11px 14px",
+                    background:"rgba(255,255,255,0.02)",
+                    border:"1px solid rgba(255,255,255,0.06)",
+                    borderLeft:"2px solid " + pillars[currentIndex+1].color,
+                    borderRadius:"0 4px 4px 0",
+                    fontSize:"0.76rem", color:"rgba(255,255,255,0.35)", fontFamily:"monospace",
+                  }}>
+                    <span style={{ color:pillars[currentIndex+1].color }}>FEEDS INTO &#8594;{"  "}
+                    {pillars[currentIndex+1].title}
+                  
+                )}
+                {currentIndex === pillars.length - 1 && (
+                  <div style={{
+                    marginTop:20, padding:"11px 14px",
+                    background:"rgba(230,176,51,0.05)",
+                    border:"1px solid rgba(230,176,51,0.18)",
+                    borderRadius:4, fontSize:"0.76rem",
+                    color:"rgba(255,255,255,0.4)", fontFamily:"monospace",
+                    textAlign:"center", letterSpacing:"0.1em",
+                  }}>&#9670; SYSTEM COMPLETE &#8212; MINERALS IN SITU &#183; ASSETS IN MARKET &#9670;
+                )}
+              
+            
+          )}
+        
+
+        {/* Hint */}
+        {!activePillar && (
+          <div style={{
+            textAlign:"center", padding: isMobile ? "14px 12px" : "18px",
+            fontSize:9, fontFamily:"monospace",
+            letterSpacing:"0.15em", color:"rgba(255,255,255,0.2)",
+            border:"1px solid rgba(255,255,255,0.04)",
+            borderTop:"none",
+            borderRadius: isMobile ? "0" : "0 0 6px 6px",
+            background:"rgba(255,255,255,0.01)",
+          }}>
+            {isMobile ? "TAP A NODE TO EXPLORE" : "&#9670; SELECT ANY NUMBERED NODE ABOVE TO EXPLORE THAT PILLAR &#9670;"}
+          
+        )}
+
+        {/* Stats bar */}
+        <div style={{
+          marginTop:16,
+          padding: isMobile ? "16px 12px" : "18px 28px",
+          background:"rgba(230,176,51,0.03)",
+          border:"1px solid rgba(230,176,51,0.1)",
+          borderRadius:4,
+          display:"grid",
+          gridTemplateColumns: isMobile ? "1fr 1fr" : "1fr 1fr 1fr",
+          gap: isMobile ? "14px 8px" : 20,
+        }}>
+          {[
+            { label:"Certification", value:"NI 43-101 + 43-99" },
+            { label:"Block Size", value:"5m x 5m x 5m" },
+            { label:"Investment Paths", value:"DST &middot; RealGold Token" },
+          ].map((s, i) => (
+            <div key={i} style={{ textAlign:"center", gridColumn: isMobile && i === 2 ? "1 / -1" : "auto" }}>
+              <div style={{ fontSize: isMobile ? 11 : 13, color:"#e6b033", marginBottom:3 }}>{s.value}
+              <div style={{ fontSize:8, color:"rgba(255,255,255,0.25)", fontFamily:"monospace", letterSpacing:"0.12em" }}>{s.label}
+            
+          ))}
+        
+      
+    
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(RAFInteractive));
+</script>
+
+<script>
+  function sendHeight() {
+    const root = document.getElementById('root');
+    const h = root.offsetHeight;
+    if (h > 100) {
+      window.parent.postMessage({ iframeHeight: h }, '*');
+    }
+  }
+  const ro = new ResizeObserver(sendHeight);
+  window.addEventListener('load', function() {
+    ro.observe(document.getElementById('root'));
+    sendHeight();
+    [100, 300, 600, 1000].forEach(t => setTimeout(sendHeight, t));
+  });
+</script>
+</body>
+</html>
+<!-- Powered by Staatic (https://staatic.com/) -->
